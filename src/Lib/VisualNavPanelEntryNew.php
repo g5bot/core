@@ -11,15 +11,18 @@ class VisualNavPanelEntryNew
 
     private $field;
 
+    private $user;
+
     private bool $isSystem;
 
     private $isTachyonSystemActive;
 
     private $tachyonFresh;
 
-    function __construct($field, bool $isSystem, bool $isTachyonSystemActive = false, bool $tachyonFresh = false)
+    function __construct($field, $user, bool $isSystem, bool $isTachyonSystemActive = false, bool $tachyonFresh = false)
     {
         $this->field = $field;
+        $this->user = $user;
         $this->isSystem = $isSystem;
         $this->isTachyonSystemActive = $isTachyonSystemActive;
         $this->tachyonFresh = $tachyonFresh;
@@ -65,6 +68,10 @@ class VisualNavPanelEntryNew
         $directionArray = [1 => [], 2 => [], 3 => [], 4 => []];
 
         foreach ($this->field->getSignatures() as $sig) {
+            if ($sig->getShip()->getUser() === $this->user) {
+                continue;
+            }
+
             $shipId = $sig->getShip()->getId();
 
             foreach (ShipEnum::DIRECTION_ARRAY as $direction) {

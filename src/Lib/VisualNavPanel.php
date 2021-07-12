@@ -239,7 +239,13 @@ class VisualNavPanel
                 $entry->setCSSClass('th');
                 $rows[$y]->addEntry($entry);
             }
-            $entry = new VisualNavPanelEntryNew($field, $this->getShip()->getSystem() !== null, $this->isTachyonSystemActive, $this->tachyonFresh);
+            $entry = new VisualNavPanelEntryNew(
+                $field,
+                $this->getShip()->getUser(),
+                $this->getShip()->getSystem() !== null,
+                $this->isTachyonSystemActive,
+                $this->tachyonFresh
+            );
             $entry->currentShipPosX = $cx;
             $entry->currentShipPosY = $cy;
             $rows[$y]->addEntry($entry);

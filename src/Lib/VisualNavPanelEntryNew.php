@@ -91,8 +91,10 @@ class VisualNavPanelEntryNew
         if ($this->loggerUtil->doLog()) {
             $startTimeS = microtime(true);
         }
+        $loggedSigLoad = false;
         foreach ($this->field->getSignatures() as $sig) {
-            if ($this->loggerUtil->doLog()) {
+            if (!$loggedSigLoad && $this->loggerUtil->doLog()) {
+                $loggedSigLoad = true;
                 $endTimeS = microtime(true);
                 $this->loggerUtil->log(sprintf(
                     "\tsigLoad-%d-%d, seconds: %F",

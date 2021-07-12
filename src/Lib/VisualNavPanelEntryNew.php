@@ -114,7 +114,12 @@ class VisualNavPanelEntryNew
 
         if ($this->loggerUtil->doLog()) {
             $endTime = microtime(true);
-            $this->loggerUtil->log(sprintf("\twander, seconds: %F", $endTime - $startTime));
+            $this->loggerUtil->log(sprintf(
+                "\twander-%d-%d, seconds: %F",
+                $this->getPosX(),
+                $this->getPosY(),
+                $endTime - $startTime
+            ));
         }
         return $code == '0000' ? null : $code;
     }

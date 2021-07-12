@@ -88,7 +88,19 @@ class VisualNavPanelEntryNew
 
         $directionArray = [1 => [], 2 => [], 3 => [], 4 => []];
 
+        if ($this->loggerUtil->doLog()) {
+            $startTimeS = microtime(true);
+        }
         foreach ($this->field->getSignatures() as $sig) {
+            if ($this->loggerUtil->doLog()) {
+                $endTimeS = microtime(true);
+                $this->loggerUtil->log(sprintf(
+                    "\tsigLoad-%d-%d, seconds: %F",
+                    $this->getPosX(),
+                    $this->getPosY(),
+                    $endTimeS - $startTimeS
+                ));
+            }
             if ($sig->getShip()->getUser() === $this->user) {
                 continue;
             }

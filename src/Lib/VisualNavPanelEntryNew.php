@@ -91,10 +91,8 @@ class VisualNavPanelEntryNew
         if ($this->loggerUtil->doLog()) {
             $startTimeS = microtime(true);
         }
-        $loggedSigLoad = false;
         foreach ($this->field->getSignatures() as $sig) {
-            if (!$loggedSigLoad && $this->loggerUtil->doLog()) {
-                $loggedSigLoad = true;
+            if ($this->loggerUtil->doLog()) {
                 $endTimeS = microtime(true);
                 $this->loggerUtil->log(sprintf(
                     "\tsigLoad-%d-%d, seconds: %F",
@@ -102,6 +100,7 @@ class VisualNavPanelEntryNew
                     $this->getPosY(),
                     $endTimeS - $startTimeS
                 ));
+                $startTimeS = microtime(true);
             }
             if ($sig->getShip()->getUser() === $this->user) {
                 continue;

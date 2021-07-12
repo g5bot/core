@@ -92,7 +92,7 @@ class VisualNavPanelEntryNew
             $startTimeS = microtime(true);
         }
         foreach ($this->field->getSignatures() as $sig) {
-            if ($this->loggerUtil->doLog()) {
+            if ($this->loggerUtil->doLog() && $this->getPosX() == 116 &&  $this->getPosY() == 118) {
                 $endTimeS = microtime(true);
                 $this->loggerUtil->log(sprintf(
                     "\tsigLoad-%d-%d, seconds: %F",
@@ -107,13 +107,19 @@ class VisualNavPanelEntryNew
             }
 
             $shipId = $sig->getShip()->getId();
-
+            if ($this->loggerUtil->doLog()) {
+                $startTimeF = microtime(true);
+            }
             foreach (ShipEnum::DIRECTION_ARRAY as $direction) {
                 if (($sig->getFromDirection() == $direction || $sig->getToDirection() == $direction)
                     && !in_array($shipId, $directionArray[$direction])
                 ) {
                     $directionArray[$direction][] = $shipId;
                 }
+            }
+            if ($this->loggerUtil->doLog() && $this->getPosX() == 116 &&  $this->getPosY() == 118) {
+                $endTimeF = microtime(true);
+                $this->loggerUtil->log(sprintf("\tforeach--, seconds: %F", $endTimeF - $startTimeF));
             }
         }
 

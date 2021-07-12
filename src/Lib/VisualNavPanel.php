@@ -47,7 +47,7 @@ class VisualNavPanel
     function getRows()
     {
         if ($this->rows === null) {
-            if ($this->ship->getUser()->getId() == 126) {
+            if ($this->ship->getId() == 3238 || $this->ship->getId() == 6005) {
                 $this->loadLSSNew();
             } else {
                 $this->loadLSS();

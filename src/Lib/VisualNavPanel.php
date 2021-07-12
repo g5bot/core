@@ -8,7 +8,7 @@ use Stu\Orm\Entity\ShipInterface;
 use Stu\Orm\Entity\UserInterface;
 use Stu\Orm\Repository\MapRepositoryInterface;
 use Stu\Orm\Repository\ShipRepositoryInterface;
-use Stu\Orm\Repository\StarSystemMapRepository;
+use Stu\Orm\Repository\StarSystemMapRepositoryInterface;
 use Stu\Orm\Repository\UserMapRepositoryInterface;
 
 class VisualNavPanel
@@ -148,7 +148,7 @@ class VisualNavPanel
         // @todo refactor
         global $container;
 
-        return $container->get(StarSystemMapRepository::class)->getByCoordinateRange(
+        return $container->get(StarSystemMapRepositoryInterface::class)->getByCoordinateRange(
             $ship->getSystem(),
             $ship->getSx() - $range,
             $ship->getSx() + $range,

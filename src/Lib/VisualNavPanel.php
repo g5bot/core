@@ -227,11 +227,12 @@ class VisualNavPanel
             $startTime = microtime(true);
         }
         foreach ($result as $field) {
-            if ($field->getCy() < 1) {
+            $fieldCy = $this->getShip()->getSystem() !== null ? $field->getSy() : $field->getCy();
+            if ($fieldCy < 1) {
                 continue;
             }
-            if ($field->getCy() != $y) {
-                $y = $field->getCy();
+            if ($fieldCy != $y) {
+                $y = $fieldCy;
                 $rows[$y] = new VisualNavPanelRow;
                 $entry = new VisualNavPanelEntry();
                 $entry->row = $y;

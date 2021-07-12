@@ -40,7 +40,13 @@ interface MapInterface
 
     public function getMapRegion(): ?MapRegionInterface;
 
+    /**
+     * @return ShipInterface[]
+     */
     public function getShips(): Collection;
 
+    /**
+     * @return FlightSignatureInterface[]
+     */
     public function getSignatures(): Collection;
 }

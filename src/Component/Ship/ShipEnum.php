@@ -35,6 +35,12 @@ final class ShipEnum
     public const DIRECTION_BOTTOM = 2;
     public const DIRECTION_RIGHT = 3;
     public const DIRECTION_TOP = 4;
+    public const DIRECTION_ARRAY = [
+        self::DIRECTION_LEFT,
+        self::DIRECTION_BOTTOM,
+        self::DIRECTION_RIGHT,
+        self::DIRECTION_TOP
+    ];
 
     //other
     public const TRUMFIELD_CLASS = 8;

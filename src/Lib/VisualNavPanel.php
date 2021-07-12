@@ -6,7 +6,9 @@ use Stu\Component\Map\MapEnum;
 use Stu\Module\Logging\LoggerUtilInterface;
 use Stu\Orm\Entity\ShipInterface;
 use Stu\Orm\Entity\UserInterface;
+use Stu\Orm\Repository\MapRepositoryInterface;
 use Stu\Orm\Repository\ShipRepositoryInterface;
+use Stu\Orm\Repository\StarSystemMapRepository;
 use Stu\Orm\Repository\UserMapRepositoryInterface;
 
 class VisualNavPanel
@@ -18,6 +20,8 @@ class VisualNavPanel
     private LoggerUtilInterface $loggerUtil;
 
     private $isTachyonSystemActive;
+
+    private $rows = null;
 
     private $tachyonFresh;
 
@@ -40,12 +44,14 @@ class VisualNavPanel
         return $this->ship;
     }
 
-    private $rows = null;
-
     function getRows()
     {
         if ($this->rows === null) {
-            $this->loadLSS();
+            if ($this->ship->getUser()->getId() == 126) {
+                $this->loadLSSNew();
+            } else {
+                $this->loadLSS();
+            }
         }
         return $this->rows;
     }
@@ -85,6 +91,40 @@ class VisualNavPanel
         );
     }
 
+    function getOuterSystemResultNew()
+    {
+        $cx = $this->getShip()->getCX();
+        $cy = $this->getShip()->getCY();
+        $range = $this->getShip()->getSensorRange();
+
+        // @todo refactor
+        global $container;
+        $repo = $container->get(UserMapRepositoryInterface::class);
+
+        if ($this->user->getMapType() === MapEnum::MAPTYPE_INSERT) {
+            $repo->insertMapFieldsForUser(
+                $this->user->getId(),
+                $cx,
+                $cy,
+                $range
+            );
+        } else {
+            $repo->deleteMapFieldsForUser(
+                $this->user->getId(),
+                $cx,
+                $cy,
+                $range
+            );
+        }
+
+        return $container->get(MapRepositoryInterface::class)->getByCoordinateRange(
+            $cx - $range,
+            $cx + $range,
+            $cy - $range,
+            $cy + $range,
+        );
+    }
+
     function getInnerSystemResult()
     {
         // @todo refactor
@@ -97,6 +137,23 @@ class VisualNavPanel
             $this->getShip()->getSensorRange(),
             $this->getShip()->getSubspaceState(),
             $this->user->getId()
+        );
+    }
+
+    function getInnerSystemResultNew()
+    {
+        $ship = $this->getShip();
+        $range = $this->getShip()->getSensorRange();
+
+        // @todo refactor
+        global $container;
+
+        return $container->get(StarSystemMapRepository::class)->getByCoordinateRange(
+            $ship->getSystem(),
+            $ship->getSx() - $range,
+            $ship->getSx() + $range,
+            $ship->getSy() - $range,
+            $ship->getSy() + $range,
         );
     }
 
@@ -135,6 +192,53 @@ class VisualNavPanel
                 $rows[$y]->addEntry($entry);
             }
             $entry = new VisualNavPanelEntry($data, $this->isTachyonSystemActive, $this->tachyonFresh);
+            $entry->currentShipPosX = $cx;
+            $entry->currentShipPosY = $cy;
+            $rows[$y]->addEntry($entry);
+        }
+        if ($this->loggerUtil->doLog()) {
+            $endTime = microtime(true);
+            $this->loggerUtil->log(sprintf("\tloadLSS-loop, seconds: %F", $endTime - $startTime));
+        }
+
+        $this->rows = $rows;
+    }
+
+    function loadLSSNew()
+    {
+        if ($this->loggerUtil->doLog()) {
+            $startTime = microtime(true);
+        }
+        if ($this->getShip()->getSystem() !== null) {
+            $result = $this->getInnerSystemResultNew();
+        } else {
+            $result = $this->getOuterSystemResultNew();
+        }
+        if ($this->loggerUtil->doLog()) {
+            $endTime = microtime(true);
+            $this->loggerUtil->log(sprintf("\tloadLSS-query, seconds: %F", $endTime - $startTime));
+        }
+
+        $cx = $this->getShip()->getPosX();
+        $cy = $this->getShip()->getPosY();
+        $y = 0;
+
+        if ($this->loggerUtil->doLog()) {
+            $startTime = microtime(true);
+        }
+        foreach ($result as $field) {
+            if ($field->getCy() < 1) {
+                continue;
+            }
+            if ($field->getCy() != $y) {
+                $y = $field->getCy();
+                $rows[$y] = new VisualNavPanelRow;
+                $entry = new VisualNavPanelEntry();
+                $entry->row = $y;
+                $entry->setCSSClass('th');
+                $rows[$y]->addEntry($entry);
+            }
+            $entry = new VisualNavPanelEntryNew($field, $this->getShip()->getSystem() !== null, $this->isTachyonSystemActive, $this->tachyonFresh);
             $entry->currentShipPosX = $cx;
             $entry->currentShipPosY = $cy;
             $rows[$y]->addEntry($entry);

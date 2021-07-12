@@ -242,6 +242,7 @@ class VisualNavPanel
             $entry = new VisualNavPanelEntryNew(
                 $field,
                 $this->getShip()->getUser(),
+                $this->loggerUtil,
                 $this->getShip()->getSystem() !== null,
                 $this->isTachyonSystemActive,
                 $this->tachyonFresh

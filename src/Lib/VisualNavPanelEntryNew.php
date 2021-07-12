@@ -13,16 +13,19 @@ class VisualNavPanelEntryNew
 
     private $user;
 
+    private $loggerUtil;
+
     private bool $isSystem;
 
     private $isTachyonSystemActive;
 
     private $tachyonFresh;
 
-    function __construct($field, $user, bool $isSystem, bool $isTachyonSystemActive = false, bool $tachyonFresh = false)
+    function __construct($field, $user, $loggerUtil, bool $isSystem, bool $isTachyonSystemActive = false, bool $tachyonFresh = false)
     {
         $this->field = $field;
         $this->user = $user;
+        $this->loggerUtil = $loggerUtil;
         $this->isSystem = $isSystem;
         $this->isTachyonSystemActive = $isTachyonSystemActive;
         $this->tachyonFresh = $tachyonFresh;
@@ -50,12 +53,26 @@ class VisualNavPanelEntryNew
 
     function hasCloakedShips()
     {
-        return count(array_filter(
+        if ($this->loggerUtil->doLog()) {
+            $startTime = microtime(true);
+        }
+        $result = count(array_filter(
             $this->field->getShips()->toArray(),
             function (ShipInterface $ship): bool {
                 return $ship->getCloakState();
             }
         ));
+        if ($this->loggerUtil->doLog()) {
+            $endTime = microtime(true);
+            $this->loggerUtil->log(sprintf(
+                "\thasCloaked-%d-%d, seconds: %F",
+                $this->getPosX(),
+                $this->getPosY(),
+                $endTime - $startTime
+            ));
+        }
+
+        return $result;
     }
 
     function hasShips()
@@ -65,6 +82,10 @@ class VisualNavPanelEntryNew
 
     function getSubspaceCode()
     {
+        if ($this->loggerUtil->doLog()) {
+            $startTime = microtime(true);
+        }
+
         $directionArray = [1 => [], 2 => [], 3 => [], 4 => []];
 
         foreach ($this->field->getSignatures() as $sig) {
@@ -90,6 +111,11 @@ class VisualNavPanelEntryNew
             $this->getCode(count($directionArray[3])),
             $this->getCode(count($directionArray[4])),
         );
+
+        if ($this->loggerUtil->doLog()) {
+            $endTime = microtime(true);
+            $this->loggerUtil->log(sprintf("\twander, seconds: %F", $endTime - $startTime));
+        }
         return $code == '0000' ? null : $code;
     }
 
